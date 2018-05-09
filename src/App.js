@@ -1,29 +1,33 @@
-import React , {Component} from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 class App extends Component {
-
-
-    constructor(props) {
-        super(props);
-        this.addTrack = this.addTrack.bind(this);
-    }
-
     addTrack() {
-        console.log('addTrack:', this.trackInput.value);
+        console.log('addTrack', this.trackInput.value);
         this.props.onAddTrack(this.trackInput.value);
-        this.trackInput.value ='';
+        this.trackInput.value = '';
     }
+
+    findTrack() {
+        console.log('findTrack', this.searchInput.value);
+        this.props.onFindTrack(this.searchInput.value);
+    }
+
+
 
     render() {
-        console.log('this.props.testStore:',this.props.testStore);
+        console.log(this.props.tracks);
         return (
             <div>
-                <input type="text" ref={(input) => {this.trackInput = input}} />
-                <button onClick={this.addTrack}>add</button>
-                <ul className="list">
-                    {this.props.testStore.map((track, index) =>
-                    <li key={index}>{track}</li>
+                <input type="text" ref={(input) => { this.trackInput = input }} />
+                <button onClick={this.addTrack.bind(this)}>Add track</button>
+                <div>
+                    <input type="text" ref={(input) => { this.searchInput = input }} />
+                    <button onClick={this.findTrack.bind(this)}>Find track</button>
+                </div>
+                <ul>
+                    {this.props.tracks.map((track, index) =>
+                        <li key={index}>{track.name}</li>
                     )}
                 </ul>
             </div>
@@ -33,75 +37,18 @@ class App extends Component {
 
 export default connect(
     state => ({
-        testStore: state
+        tracks: state.tracks.filter(track => track.name.includes(state.filterTracks))
     }),
     dispatch => ({
-        onAddTrack: (trackName) => {
-            dispatch({type: 'ADD_TRACK', payload: trackName});
+        onAddTrack: (name) => {
+            const payload = {
+                id: Date.now().toString(),
+                name
+            };
+            dispatch({ type: 'ADD_TRACK', payload});
+        },
+        onFindTrack: (name) => {
+            dispatch({ type: 'FIND_TRACK', payload: name })
         }
     })
 )(App);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-
-
-
-
-
-
-
-
-
-
-const addTrackBtn = document.querySelectorAll('.addTrack')[0];
-const trackInput = document.querySelectorAll('.trackInput')[0];
-const list = document.querySelectorAll('.list')[0];
-
-store.subscribe( () => {
-    console.log('subscribe: ',store.getState());
-    list.innerHTML = '';
-    trackInput.value='';
-    store.getState().forEach( track => {
-        const li = document.createElement('li');
-        li.textContent = track;
-        list.appendChild(li);
-    })
-});
-
-store.dispatch({
-    type: 'addTrack',
-    payload: 'red cold river'
-});
-
-
-
-addTrackBtn.addEventListener('click', ()=> {
-    const trackName = trackInput.value;
-    console.log('trackName: ',trackName);
-    store.dispatch({
-        type: 'addTrack',
-        payload: trackName
-    });
-});*/
